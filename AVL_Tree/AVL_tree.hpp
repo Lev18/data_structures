@@ -187,7 +187,15 @@ private:
     return node;
     }
 
-    
+    void do_inorder_print(Node* root, int level) {
+      const int dist = 4;
+      do_inorder_print(root->left, level + 1);
+      for (int i = 0; i < dist * level; ++i) {
+        std::cout << " ";
+      }
+      std::cout << root->value << std::endl;
+      do_inorder_print(root->right, level + 1);
+    }
 public:
   AVL<T>() : root( nullptr){}
   explicit AVL<T>(const T& value) : root(new Node(value)) {}
@@ -197,7 +205,7 @@ public:
   }
 
   void print() {
-    do_print(root, 0);
+    do_inorder_print(root, 0);
   }
 };
 #endif

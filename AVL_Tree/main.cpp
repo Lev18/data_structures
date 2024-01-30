@@ -16,6 +16,7 @@ int main() {
   // root.delete_node(10);
 
   //root.print();
+  root.print();
   std::cout << std::endl;
   // root.get_successor(14);
 

@@ -1,6 +1,9 @@
 #ifndef AVL_TREE_H
 #define AVL_TREE_H
 
+#include <iostream>
+#include <queue> 
+
 template <typename T>
 class AVL {
 private:
@@ -11,7 +14,10 @@ private:
     Node* right;
     explicit Node(T val) : value{val}, height{1}, left{nullptr}, right{nullptr}{}
   };
-  Node* root;
+
+  Node* m_root;
+  int m_size;
+
 private:
 
   int max(int a, int b) {
@@ -100,6 +106,7 @@ private:
     }
     
     node->height = 1 + max(height(node->left),height(node->right));
+    //++m_size;
     
     int balance = get_balance(node);
 
@@ -188,6 +195,10 @@ private:
     }
 
     void do_inorder_print(Node* root, int level) {
+      if (root == nullptr) {
+        return;
+      }
+
       const int dist = 4;
       do_inorder_print(root->left, level + 1);
       for (int i = 0; i < dist * level; ++i) {
@@ -196,16 +207,49 @@ private:
       std::cout << root->value << std::endl;
       do_inorder_print(root->right, level + 1);
     }
+
+    void do_level_order(Node* root) {
+      if (root == nullptr) {
+        return;
+      }
+      std::queue<Node*> q;
+      q.push(root);
+
+      Node* current_node = nullptr;
+      while (!q.empty()) {
+        current_node = q.front();
+        q.pop();
+
+        if (current_node->left != nullptr) {
+          q.push(current_node->left);
+        }
+        if (current_node->right != nullptr) {
+          q.push(current_node->right);
+        }
+      }
+    }
+
 public:
-  AVL<T>() : root( nullptr){}
-  explicit AVL<T>(const T& value) : root(new Node(value)) {}
+  AVL<T>() : m_root( nullptr), m_size(0) {}
+  explicit AVL<T>(const T& value) : m_root(new Node(value)), m_size{1} {}
+  AVL<T>(const AVL<T>& oth) {}
+  AVL<T>(AVL<T>&& src){}
+  AVL<T>& operator=(const AVL<T>& rhs) {}
+  AVL<T>& operator=(AVL<T>&& src){}  
   
   void insert(T value) {
-    root = do_insert(root, value);
+    m_root = do_insert(m_root, value);
+    ++m_size;
   }
 
   void print() {
-    do_inorder_print(root, 0);
+    do_inorder_print(m_root, 0);
+    // std::cout << m_size << std::endl;
   }
+
+  std::size_t size() {
+    return m_size;
+  }
+
 };
 #endif

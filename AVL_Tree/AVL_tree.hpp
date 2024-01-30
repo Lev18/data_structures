@@ -208,6 +208,16 @@ private:
       do_inorder_print(root->right, level + 1);
     }
 
+    template <typename F>
+    void do_post_order(F fun, Node* node) {
+      if (node == nullptr) {
+        return;
+      }
+      do_post_order(node->left);
+      do_post_order(node->right);
+      fun(node->value);
+    }
+
     void do_level_order(Node* root) {
       if (root == nullptr) {
         return;
@@ -229,6 +239,52 @@ private:
       }
     }
 
+    Node* get_node(Node* root, const T& value) {
+      if (root == nullptr) {
+        return root;
+      }
+
+      Node* ctr = root;
+
+      while (ctr && ctr->value != value) {
+        if (ctr->value > value) {
+          ctr = ctr->left;
+        }
+        else {
+          ctr = ctr->right; 
+        }
+      }
+      return ctr;
+    }
+
+    Node* get_successor(Node* root, const T& value) {
+      if (root == nullptr) {
+        return root;
+      }
+
+      Node* node = get_node(root, value);
+
+      if (!node) {
+        return node;
+      }
+
+      if (node->right) {
+        return min_value(node->right);
+      }
+
+      Node* successor = nullptr;
+      while (root && root->value != value) {
+        if (root->value < value) {
+          root = root->right;
+        }
+        else {
+          successor = root;
+          root = root->left;
+        }
+      }
+      return root ? root : successor;
+    }
+
 public:
   AVL<T>() : m_root( nullptr), m_size(0) {}
   explicit AVL<T>(const T& value) : m_root(new Node(value)), m_size{1} {}
@@ -245,6 +301,12 @@ public:
   void print() {
     do_inorder_print(m_root, 0);
     // std::cout << m_size << std::endl;
+    std::cout << get_successor(m_root, 30)->value << std::endl;
+  }
+
+  template<typename F>
+  void post_order(F fun) {
+    do_post_order(fun, m_root);
   }
 
   std::size_t size() {

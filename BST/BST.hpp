@@ -29,7 +29,9 @@ public: // function interface
     T get_min_val();
     T get_max_val();
     T pred_of_node(T key);
+    T succ_of_node(T key);
 #endif
+
 private:
     std::size_t m_size;
     struct Node {
@@ -142,6 +144,11 @@ T BinSearchTree<T>::pred_of_node(T key) {
     return get_predecessor(find(key))->key;
 }
 
+template <typename T>
+T BinSearchTree<T>::succ_of_node(T key) {
+    return get_successor(find(key))->key;
+}
+
 #endif
 
 template <typename T>
@@ -158,12 +165,38 @@ const typename BinSearchTree<T>::Node* BinSearchTree<T>::get_predecessor(const B
             pred = ancestor;
             ancestor = ancestor->right;
         }
-        ancestor = ancestor->left;
+        else {
+            ancestor = ancestor->left;
+        }
     }
-
     return pred;
 }
 
+template <typename T>
+const typename BinSearchTree<T>::Node* BinSearchTree<T>::get_successor(const BinSearchTree<T>::Node* node) {
+    /* 
+     * get successor is return back the node which is smallest from greater nodes
+     * for that, first of all we need to check if right subtree of given node is existing
+     * if it is then we return smallest node of that subtree
+     * if it is not then we need keep track of decessors and successors, we move successor only in case 
+     * when decessor key is greater than given node key
+     */
+    if (node == nullptr) return nullptr;
+
+    if (node->right) return get_min(node->right);
+
+    const BinSearchTree<T>::Node* succ = nullptr;
+    const BinSearchTree<T>::Node* decessor = m_root;
+
+    while (decessor != nullptr) {
+        if (decessor->key > node->key) {
+            succ = decessor;
+            decessor = decessor->left;
+        }
+        decessor = decessor->right;
+    }
+    return succ;
+}
 
 template <typename T>
 const typename BinSearchTree<T>::Node* BinSearchTree<T>::find(T key) {

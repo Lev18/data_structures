@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstddef>
 
+#define ITER_INS
+
 template <typename T>
 class BinSearchTree {
 public:
@@ -45,6 +47,7 @@ private:
 private: // auxilary functions
     void postord_traversal(const Node* node);
     void inorder_traversal(const Node* node, int level);
+    void insert_iter(Node* node, T key);
     Node* do_insertion(Node* root, T value);
     const Node* get_max(const Node* node);
     const Node* get_min(const Node* node);
@@ -61,9 +64,58 @@ void BinSearchTree<T>::print_tree() {
     inorder_traversal(m_root, 0);
 }
 
+template <typename T>
+void BinSearchTree<T>::insert_element(T value) {
+#ifdef REC_INS
+    if (m_root == nullptr) {
+        m_root = do_insertion(m_root, value);
+    }
+    else  {
+        do_insertion(m_root, value);
+    }
+#endif
+    
+#ifdef ITER_INS
+    BinSearchTree<T>::Node* new_node = new BinSearchTree<T>::Node(value);
+    insert_iter(new_node, value);
+#endif
+    ++m_size;
+}
+
+//TODO: delete node from tree
+template <typename T>
+void BinSearchTree<T>::delete_element(T value) {
+    BinSearchTree<T>::Node* del_node = find(value);
+
+    if (del_node == nullptr) return;
+
+    if (del_node->left == nullptr && del_node->right == nullptr) delete del_node; 
+
+    if (del_node->left || del_node->right) {
+        if (del_node->right) {
+            if (!del_node->right->right && !del_node->right->left) {
+
+            }
+        }
+        else {
+        }
+    }
+
+
+}
+
+// below are private auxilary functions impementation
+template <typename T>
+const typename BinSearchTree<T>::Node* BinSearchTree<T>::get_min(const BinSearchTree<T>::Node* node) {
+    const BinSearchTree<T>::Node* ptr = node;
+    while (ptr->left != nullptr) {
+        ptr = ptr->left;
+    }
+    return ptr;
+}
+
 template<typename T>
 void BinSearchTree<T>::inord_print(T value, int level) {
-
     const int dist = 4;
      for (int i = 0; i < dist * level; ++i) {
         std::cout << ' ';
@@ -87,7 +139,7 @@ typename BinSearchTree<T>::Node* BinSearchTree<T>::do_insertion(BinSearchTree<T>
       if (node == nullptr) {
         return new BinSearchTree<T>::Node(value);
      }
-      else if(node->key > value) {
+      else if (node->key > value) {
         node->left = do_insertion(node->left, value);
      }
       else {
@@ -97,24 +149,29 @@ typename BinSearchTree<T>::Node* BinSearchTree<T>::do_insertion(BinSearchTree<T>
 }
 
 template <typename T>
-void BinSearchTree<T>::insert_element(T value) {
+void BinSearchTree<T>::insert_iter(BinSearchTree<T>::Node* node, T value) {
+    BinSearchTree<T>::Node* temp = nullptr;
+    BinSearchTree<T>::Node* iter = m_root;
+
+    while (iter != nullptr) {
+        temp = iter;
+        if (iter->key < value) {
+            iter = iter->right;
+        }
+        else if (iter->key > value) {
+            iter = iter->left;
+        }
+    }
+
     if (m_root == nullptr) {
-        m_root = do_insertion(m_root, value);
+        m_root = node;
     }
-    else  {
-        do_insertion(m_root, value);
+    else if (temp->key < value) {
+        temp->right = node;
     }
-}
-
-
-
-template <typename T>
-const typename BinSearchTree<T>::Node* BinSearchTree<T>::get_min(const BinSearchTree<T>::Node* node) {
-    const BinSearchTree<T>::Node* ptr = node;
-    while (ptr->left != nullptr) {
-        ptr = ptr->left;
+    else if (temp->key > value) {
+        temp->left = node;
     }
-    return ptr;
 }
 
 template <typename T>

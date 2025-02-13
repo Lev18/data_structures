@@ -35,14 +35,27 @@ int main() {
     for (const auto& it : arr_vals) {
         tree.insert_element(it);
     }
+#elif DEL_TEST
+    std::vector arr_vals {171, 285, 210, 190, 155, 118, 108, 131, 141, 128, 122, 195};   
+    for (const auto& it : arr_vals) {
+        tree.insert_element(it);
+    }
 #endif
 
 
 #ifdef DEBUG
-    //std::cout << tree.get_min_val() << '\n';
+
+    std::cout << "Tree before  deleting all nodes" << '\n';
     tree.print_tree();
-    int curr_key = 210;
-    std::cout << "Successor of curr_ket " << curr_key << " is "<<tree.succ_of_node(curr_key) << '\n';
+    tree.delete_element(131);
+    for (size_t it = 0; it < arr_vals.size() - 5 ;  ++it){
+        tree.delete_element(arr_vals[it]);
+    }
+
+    std::cout << "Tree after deleting all nodes" << '\n';
+    //tree.print_tree();
+    //int curr_key = 210;
+    // std::cout << "Successor of curr_ket " << curr_key << " is "<<tree.succ_of_node(curr_key) << '\n';
 #endif
 
     return 0;

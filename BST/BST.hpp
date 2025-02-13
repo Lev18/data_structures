@@ -2,8 +2,13 @@
 #define BST_HPP
 #include <iostream>
 #include <cstddef>
+#include <vector>
 
 #define ITER_INS
+enum class NODE_STATUS {
+    ACTIVE,
+    DEAD
+};
 
 template <typename T>
 class BinSearchTree {
@@ -15,7 +20,14 @@ public:
     BinSearchTree<T>& operator=(const BinSearchTree<T>& src) = default;
     BinSearchTree<T>& operator=(BinSearchTree<T>&& src) = default;
     ~BinSearchTree<T>() {
-        if (m_root) delete m_root;
+        /*
+        for(auto& iter : all_nodes) {
+            if (iter) {
+             delete iter;
+            }
+        }
+        */
+        delete m_root;
     }
 
 public: // function interface   
@@ -40,9 +52,11 @@ private:
         Node* left;
         Node* right;
         T key;
-        explicit Node(T value) : left{nullptr}, right{nullptr}, key{value} {}
+        NODE_STATUS m_status;
+        explicit Node(T value) : left{nullptr}, right{nullptr}, key{value}, m_status{NODE_STATUS::ACTIVE} {}
     };
     Node* m_root;
+    std::vector<Node*> all_nodes;
 
 private: // auxilary functions
     void postord_traversal(const Node* node);
@@ -50,13 +64,13 @@ private: // auxilary functions
     void insert_iter(Node* node, T key);
     Node* do_insertion(Node* root, T value);
     const Node* get_max(const Node* node);
-    const Node* get_min(const Node* node);
+    Node* get_min(Node* node);
     const std::size_t get_height() const;
     const Node* get_predecessor(const Node* node);
     const Node* get_successor(const Node* node);
     void inord_print(T value, int level);
     bool bin_search(T key);
-    const Node* find(T key);
+    Node* find(T key);
 };
 
 template<typename T>
@@ -81,33 +95,41 @@ void BinSearchTree<T>::insert_element(T value) {
 #endif
     ++m_size;
 }
-
+ 
 //TODO: delete node from tree
 template <typename T>
-void BinSearchTree<T>::delete_element(T value) {
-    BinSearchTree<T>::Node* del_node = find(value);
+void BinSearchTree<T>::delete_element(BinSearchTree<T>::Node* node = BinSearchTree<T>::m_root, T value) { 
+    BinSearchTree<T>::Node* del_node = node;
 
+
+           
     if (del_node == nullptr) return;
-
-    if (del_node->left == nullptr && del_node->right == nullptr) delete del_node; 
-
-    if (del_node->left || del_node->right) {
-        if (del_node->right) {
-            if (!del_node->right->right && !del_node->right->left) {
-
-            }
+    if (del_node->left == nullptr && del_node->right == nullptr) delete del_node;// del_node->m_status == NODE_STATUS::DEAD;
+      
+    if (del_node->left == nullptr || del_node->right == nullptr) {
+        BinSearchTree<T>::Node* tmp = del_node->left ? del_node->left : del_node->right;
+        if (tmp == nullptr) {
+            tmp = del_node;
+            del_node = nullptr;
         }
         else {
+            *del_node = *tmp;
         }
+        // tmp->m_status = NODE_STATUS::DEAD;
+        delete tmp;
     }
-
-
+    else {
+        BinSearchTree<T>::Node* repl_node = get_min(del_node->right);
+        del_node->key = repl_node->key;
+        repl_node->key = value;
+        delete_element(value);
+    }
 }
 
 // below are private auxilary functions impementation
 template <typename T>
-const typename BinSearchTree<T>::Node* BinSearchTree<T>::get_min(const BinSearchTree<T>::Node* node) {
-    const BinSearchTree<T>::Node* ptr = node;
+typename BinSearchTree<T>::Node* BinSearchTree<T>::get_min(BinSearchTree<T>::Node* node) {
+    BinSearchTree<T>::Node* ptr = node;
     while (ptr->left != nullptr) {
         ptr = ptr->left;
     }
@@ -130,7 +152,9 @@ void BinSearchTree<T>::inorder_traversal(const Node* node, int level) {
     }
 
     BinSearchTree<T>::inorder_traversal(node->left, level + 1);
-    inord_print(node->key, level);
+    if (node->m_status == NODE_STATUS::ACTIVE) {
+        inord_print(node->key, level);
+    }
     BinSearchTree<T>::inorder_traversal(node->right, level + 1);
 }
 
@@ -152,6 +176,7 @@ template <typename T>
 void BinSearchTree<T>::insert_iter(BinSearchTree<T>::Node* node, T value) {
     BinSearchTree<T>::Node* temp = nullptr;
     BinSearchTree<T>::Node* iter = m_root;
+    all_nodes.push_back(node);
 
     while (iter != nullptr) {
         temp = iter;
@@ -256,7 +281,7 @@ const typename BinSearchTree<T>::Node* BinSearchTree<T>::get_successor(const Bin
 }
 
 template <typename T>
-const typename BinSearchTree<T>::Node* BinSearchTree<T>::find(T key) {
+typename BinSearchTree<T>::Node* BinSearchTree<T>::find(T key) {
     BinSearchTree<T>::Node* node  = m_root;
     while (node != nullptr && node->key != key) {
         if (node->key > key) {

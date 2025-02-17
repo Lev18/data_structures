@@ -63,6 +63,7 @@ private: // auxilary functions
     void inorder_traversal(const Node* node, int level);
     void insert_iter(Node* node, T key);
     Node* do_insertion(Node* root, T value);
+    Node* do_deletion(Node* node, T value);
     const Node* get_max(const Node* node);
     Node* get_min(Node* node);
     const std::size_t get_height() const;
@@ -98,37 +99,50 @@ void BinSearchTree<T>::insert_element(T value) {
  
 //TODO: delete node from tree
 template <typename T>
-void BinSearchTree<T>::delete_element(BinSearchTree<T>::Node* node = BinSearchTree<T>::m_root, T value) { 
-    BinSearchTree<T>::Node* del_node = node;
-
-
-           
-    if (del_node == nullptr) return;
-    if (del_node->left == nullptr && del_node->right == nullptr) delete del_node;// del_node->m_status == NODE_STATUS::DEAD;
-      
-    if (del_node->left == nullptr || del_node->right == nullptr) {
-        BinSearchTree<T>::Node* tmp = del_node->left ? del_node->left : del_node->right;
-        if (tmp == nullptr) {
-            tmp = del_node;
-            del_node = nullptr;
-        }
-        else {
-            *del_node = *tmp;
-        }
-        // tmp->m_status = NODE_STATUS::DEAD;
-        delete tmp;
-    }
-    else {
-        BinSearchTree<T>::Node* repl_node = get_min(del_node->right);
-        del_node->key = repl_node->key;
-        repl_node->key = value;
-        delete_element(value);
-    }
+void BinSearchTree<T>::delete_element(T value) { 
+    // BinSearchTree<T>::Node* del_node = this->find(value);
+    do_deletion(m_root, value);
 }
 
-// below are private auxilary functions impementation
+template <typename T>
+typename BinSearchTree<T>::Node* BinSearchTree<T>::do_deletion(BinSearchTree<T>::Node *node, T value) { 
+    if (!node) return nullptr;
+
+    if (node->key > value) {
+        node->left = do_deletion(node->left, value);
+    }
+    else if (node->key < value) {
+        node->right = do_deletion(node->right, value);
+    }
+    else {
+        if (node->left == nullptr || node->right == nullptr) {
+            BinSearchTree<T>::Node* tmp = node->left ? node->left : node->right;
+            if (!node->left && node == m_root) {
+                m_root = node->right;
+            }
+            if (!node->right && node == m_root) {
+                m_root = node->left;
+            }
+
+            delete node;
+            return tmp;
+        }
+        else {
+            BinSearchTree<T>::Node* repl_node = get_min(node->right);
+            node->key = repl_node->key;      
+            node->right = do_deletion(node->right, repl_node->key);
+        }
+    }
+    return node;
+}
+
+// belowi are private auxilary functions impementation
 template <typename T>
 typename BinSearchTree<T>::Node* BinSearchTree<T>::get_min(BinSearchTree<T>::Node* node) {
+    if (node == nullptr) {
+        return nullptr;
+    }
+
     BinSearchTree<T>::Node* ptr = node;
     while (ptr->left != nullptr) {
         ptr = ptr->left;

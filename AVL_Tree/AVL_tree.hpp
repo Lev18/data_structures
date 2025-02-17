@@ -301,7 +301,7 @@ public:
   void print() {
     do_inorder_print(m_root, 0);
     // std::cout << m_size << std::endl;
-    std::cout << get_successor(m_root, 30)->value << std::endl;
+    //std::cout << get_successor(m_root, 30)->value << std::endl;
   }
 
   template<typename F>
@@ -313,5 +313,8 @@ public:
     return m_size;
   }
 
+  void delete_elem(T key) {
+      delete_node(m_root, key);
+  }
 };
 #endif

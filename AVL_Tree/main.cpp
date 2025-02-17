@@ -2,21 +2,23 @@
 #include <iostream>
 
 int main() {
-  
-  AVL<int>  root;
-  root.insert(20);
-  root.insert(25);
-  root.insert(9);
-  root.insert(12);
-  root.insert(27);
-  root.insert(6);
-  root.insert(14);
-  root.insert(4);
-  root.insert(10);
-  // root.delete_node(10);
+AVL<int>  root;
 
+#ifdef DEL_TEST
+    std::vector arr_vals {171, 285, 210, 190, 155, 118, 108, 131, 141, 128, 122, 195};   
+    for (const auto& it : arr_vals) {
+        root.insert(it);
+    }
+#endif
+
+    std::cout << "Tree before deletion" << '\n'; 
+    root.print();
+    for (const auto& it : arr_vals) {
+        root.delete_elem(it);
+    }
+
+    std::cout << "Tree after deletion" << '\n'; 
   //root.print();
-  root.print();
   std::cout << std::endl;
   // root.get_successor(14);
 

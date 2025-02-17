@@ -44,15 +44,27 @@ int main() {
 
 
 #ifdef DEBUG
+    tree.insert_element(171);
+    tree.insert_element(195);
+    tree.insert_element(190);
+    tree.insert_element(155);
+    tree.insert_element(118);
+    tree.insert_element(108);
 
     std::cout << "Tree before  deleting all nodes" << '\n';
     tree.print_tree();
-    tree.delete_element(131);
-    for (size_t it = 0; it < arr_vals.size() - 5 ;  ++it){
-        tree.delete_element(arr_vals[it]);
-    }
+    // tree.delete_element(131);
+   // for (auto &it : arr_vals){
+    tree.delete_element(171);
+    tree.delete_element(195);
+    tree.delete_element(190);
+    tree.delete_element(155);
+    tree.delete_element(118);
+    tree.delete_element(108);
 
-    std::cout << "Tree after deleting all nodes" << '\n';
+    //}
+
+    std::cout << "Tree after deleting nodes" << '\n';
     //tree.print_tree();
     //int curr_key = 210;
     // std::cout << "Successor of curr_ket " << curr_key << " is "<<tree.succ_of_node(curr_key) << '\n';
